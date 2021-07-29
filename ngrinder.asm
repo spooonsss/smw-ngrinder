@@ -43,6 +43,28 @@ CODE_01DB72:                      STA !Bank		;/
 CODE_01DB75:                      LDA #$00
                                   %SubOffScreen()
 CODE_01DB78:                      JSL $01A7DC  		; Default interaction with Mario.
+
+
+; Check for "Don't use default interaction with player" tweaker bit in $167A,x
+; Format: dpmksPiS
+; d=Don't use default interaction with player
+	PHP ; save carry, in case d==1
+	LDA !167A,x
+	AND #$80
+	BNE kill_interaction
+	JMP normal_interaction
+
+kill_interaction: PLP
+	BCC CODE_01DB7B
+	PHY
+	;JSL $00F606 ;>Kill the player.
+	JSL $00F5B7	;>Hurt the player.
+	PLY
+	RTS
+
+
+normal_interaction: PLP
+
 CODE_01DB7B:                      LDY !157C,X     	;\
 CODE_01DB7E:                      LDA XSpeeds,Y     ; | Set X speeds based on direction of sprite.
 CODE_01DB81:                      STA !B6,X    		;/
